@@ -24,67 +24,28 @@ export const priceTrendPrimary: SeriesPoint[] = [
   { x: "Dec", y: 1.42 },
 ];
 
-/** Secondary trace: prior-year implied (normalized). */
 export const priceTrendSecondary: SeriesPoint[] = priceTrendPrimary.map((p, i) => ({
   x: p.x,
   y: p.y * (0.94 + (i % 4) * 0.008),
 }));
 
 export const areaInsights = [
-  {
-    id: "sf",
-    name: "San Francisco",
-    median: "$1.55M",
-    yoy: "+3.1%",
-    inventory: "Tight",
-    note: "Elevated off-market activity; bidding depth in prime corridors.",
-  },
-  {
-    id: "marin",
-    name: "Marin County",
-    median: "$1.82M",
-    yoy: "+5.4%",
-    inventory: "Balanced",
-    note: "Water-view inventory moving faster than hillside stock.",
-  },
-  {
-    id: "pen",
-    name: "Peninsula",
-    median: "$1.68M",
-    yoy: "+2.8%",
-    inventory: "Constrained",
-    note: "School-adjacent pockets absorbing within two weeks median.",
-  },
-  {
-    id: "eb",
-    name: "East Bay",
-    median: "$985K",
-    yoy: "+1.9%",
-    inventory: "Expanding",
-    note: "Relative value draw; watch rate sensitivity on jumbo tranche.",
-  },
+  { id: "sf", name: "San Francisco", median: "$1.55M", yoy: "+3.1%", inventory: "Tight", note: "Elevated off-market activity; bidding depth in prime corridors." },
+  { id: "marin", name: "Marin County", median: "$1.82M", yoy: "+5.4%", inventory: "Balanced", note: "Water-view inventory moving faster than hillside stock." },
+  { id: "pen", name: "Peninsula", median: "$1.68M", yoy: "+2.8%", inventory: "Constrained", note: "School-adjacent pockets absorbing within two weeks median." },
+  { id: "eb", name: "East Bay", median: "$985K", yoy: "+1.9%", inventory: "Expanding", note: "Relative value draw; watch rate sensitivity on jumbo tranche." },
 ] as const;
 
 export const investmentHighlights = [
-  {
-    title: "Yield on quality",
-    body: "Trophy assets in supply-constrained micro-markets continue to compress cap equivalents versus income property benchmarks.",
-  },
-  {
-    title: "Off-market velocity",
-    body: "Private introductions now represent a double-digit share of closed volume above $4M—relationship and timing edge matter more than list price.",
-  },
-  {
-    title: "Renovation arbitrage",
-    body: "Well-documented cosmetic and systems upgrades still pencil to 12–18% realized premium when paired with architectural narrative.",
-  },
+  { title: "Yield on quality", body: "Trophy assets in supply-constrained micro-markets continue to compress cap equivalents versus income property benchmarks." },
+  { title: "Off-market velocity", body: "Private introductions now represent a double-digit share of closed volume above $4M—relationship and timing edge matter more than list price." },
+  { title: "Renovation arbitrage", body: "Well-documented cosmetic and systems upgrades still pencil to 12–18% realized premium when paired with architectural narrative." },
 ] as const;
 
 export const dashboardMeta = {
   title: "Market Intelligence",
   eyebrow: "Strand Intelligence · Q4 snapshot",
-  subtitle:
-    "Curated signals across the Bay Area luxury residential market—median trajectory, regional dispersion, and positioning notes for principal decision-makers.",
+  subtitle: "Curated signals across the Bay Area luxury residential market—median trajectory, regional dispersion, and positioning notes for principal decision-makers.",
   chartTitle: "Median closed price trajectory",
   chartSubtitle: "SF metro · $M · trailing twelve months · illustrative",
   updated: "Updated weekly · demo data",
@@ -96,3 +57,54 @@ export const marketSignals = [
   { id: "demand", label: "Demand depth", detail: "Multiple-offer share stable on $3M+ inventory." },
   { id: "fx", label: "Capital flows", detail: "Cross-border interest up modestly on trophy stock." },
 ] as const;
+
+export const sculptureNodes = [
+  { id: "facet-med", label: "Median facet", bindTo: "kpi" as const, refId: "med" },
+  { id: "facet-dom", label: "Velocity shard", bindTo: "kpi" as const, refId: "dom" },
+  { id: "facet-sf", label: "City core", bindTo: "region" as const, refId: "sf" },
+  { id: "facet-marin", label: "North ridge", bindTo: "region" as const, refId: "marin" },
+  { id: "facet-yield", label: "Quality thesis", bindTo: "highlight" as const, refId: "0" },
+  { id: "facet-rates", label: "Rates pulse", bindTo: "signal" as const, refId: "rates" },
+] as const;
+
+export type SculptureNode = (typeof sculptureNodes)[number];
+
+export type ResolvedSculptureInsight = {
+  nodeId: string;
+  facetLabel: string;
+  eyebrow: string;
+  title: string;
+  metrics: { label: string; value: string }[];
+  body: string;
+};
+
+export function getSculptureNode(nodeId: string): SculptureNode | undefined {
+  return sculptureNodes.find((n) => n.id === nodeId);
+}
+
+export function resolveSculptureInsight(nodeId: string): ResolvedSculptureInsight | null {
+  const node = getSculptureNode(nodeId);
+  if (!node) return null;
+  if (node.bindTo === "kpi") {
+    const row = kpis.find((k) => k.id === node.refId);
+    if (!row) return null;
+    return { nodeId: node.id, facetLabel: node.label, eyebrow: "KPI · snapshot", title: row.label, metrics: [{ label: "Reading", value: row.value }, { label: "Delta", value: row.delta }], body: `${row.positive ? "Favorable" : "Watch"} versus prior period—illustrative demo series.` };
+  }
+  if (node.bindTo === "region") {
+    const row = areaInsights.find((a) => a.id === node.refId);
+    if (!row) return null;
+    return { nodeId: node.id, facetLabel: node.label, eyebrow: "Regional lens", title: row.name, metrics: [{ label: "Median", value: row.median }, { label: "YoY", value: row.yoy }, { label: "Inventory", value: row.inventory }], body: row.note };
+  }
+  if (node.bindTo === "highlight") {
+    const idx = Number.parseInt(node.refId, 10);
+    const row = investmentHighlights[idx];
+    if (!row) return null;
+    return { nodeId: node.id, facetLabel: node.label, eyebrow: "Investment thesis", title: row.title, metrics: [], body: row.body };
+  }
+  if (node.bindTo === "signal") {
+    const row = marketSignals.find((s) => s.id === node.refId);
+    if (!row) return null;
+    return { nodeId: node.id, facetLabel: node.label, eyebrow: "Live tape · demo", title: row.label, metrics: [], body: row.detail };
+  }
+  return null;
+}

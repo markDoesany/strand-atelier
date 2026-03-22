@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { AppChrome } from "@/components/chrome/app-chrome";
 import { SiteHeader } from "@/components/site-header";
 import { site } from "@/data/site";
 
@@ -58,8 +59,9 @@ export default function RootLayout({
     >
       <body className="min-h-full antialiased">
         <SmoothScroll>
+          <AppChrome />
           <SiteHeader />
-          <div className="flex flex-col pt-16 lg:pt-[4.25rem]">{children}</div>
+          <div className="relative flex flex-col pt-16 lg:pt-[4.25rem]">{children}</div>
         </SmoothScroll>
       </body>
     </html>

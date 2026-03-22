@@ -8,7 +8,7 @@ export function HeroCanvasInner() {
   return (
     <Canvas
       shadows
-      camera={{ position: [0, 0.2, 4.2], fov: 40 }}
+      camera={{ position: [0.42, 0.28, 4.05], fov: 38 }}
       gl={{
         alpha: true,
         antialias: true,

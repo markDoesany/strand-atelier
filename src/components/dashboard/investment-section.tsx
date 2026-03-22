@@ -10,10 +10,7 @@ export function InvestmentSection({
   const reduce = useReducedMotion();
 
   return (
-    <aside
-      aria-label="Investment highlights"
-      className="lg:sticky lg:top-28 lg:self-start"
-    >
+    <aside aria-label="Investment highlights" className="lg:sticky lg:top-28 lg:self-start">
       <p className="text-[0.6rem] font-medium uppercase tracking-[0.28em] text-[var(--charcoal-muted)]">
         Positioning
       </p>

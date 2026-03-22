@@ -21,7 +21,11 @@ export function KpiStrip({ items }: { items: readonly Kpi[] }) {
             initial={reduce ? false : { opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.45, delay: reduce ? 0 : i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+            transition={
+              reduce
+                ? { duration: 0.2 }
+                : { type: "spring", stiffness: 420, damping: 32, delay: i * 0.05 }
+            }
             className="bg-[var(--warm-white)] px-6 py-8 lg:px-8"
           >
             <p className="text-[0.6rem] font-medium uppercase tracking-[0.22em] text-[var(--charcoal-muted)]">
